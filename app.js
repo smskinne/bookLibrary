@@ -121,7 +121,6 @@ class Bookshelf {
                     <div class="search-result-info">
                         <div class="search-result-title">${title}</div>
                         <div class="search-result-author">by ${author}</div>
-                        <div class="search-result-meta">${firstPublishYear ? `First published: ${firstPublishYear}` : ''}</div>
                     </div>
                     <div class="book-actions">
                         <button class="action-btn btn-primary" onclick="bookshelfApp.addToBookshelf({
@@ -144,6 +143,21 @@ class Bookshelf {
                 </div>
             `;
         }).join('');
+
+        this.searchResultListeners();
+    }
+
+    // Add click event listener for search result items
+    searchResultListeners() {
+        document.querySelectorAll('.search-result-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                if(e.target.tagName === 'BUTTON') return;
+
+                document.querySelectorAll('.search-result-item').forEach(i => i.classList.remove('active'));
+
+                item.classList.add('active');
+            });
+        });
     }
 
     // small helper to escape single quotes/backslashes for inline onclick payloads
