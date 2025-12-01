@@ -1,13 +1,13 @@
 //Digital Bookshelf
 //Created by Shaun Skinner
 
-class Bookshelf {
+class Bookshelf { // main app class
     constructor() {
-        this.bookshelf = [];
-        this.wishlist = [];
-        this.currentFilter = 'all';
+        this.bookshelf = []; // array to hold bookshelf books
+        this.wishlist = []; // array to hold wishlist books
+        this.currentFilter = 'all'; // current filter for bookshelf view
 
-        this.initializeApp();
+        this.initializeApp(); // initialize the app
     }
 
     //Initialize
@@ -37,22 +37,25 @@ class Bookshelf {
 
     //Event Listeners
     startupEventListeners(){
-
+        // Close book info section
+        document.getElementById('closeBookInfo').addEventListener('click', () => {
+            document.getElementById('book-info').hidden = true;
+        });
                 // Search functionality
         document.getElementById('searchButton').addEventListener('click', () => this.searchBooks());
-        document.getElementById('searchInput').addEventListener('keypress', (e) => {
+        document.getElementById('searchInput').addEventListener('keypress', (e) => { //Search on click or enter key
             if (e.key === 'Enter') this.searchBooks();
         });
 
         //clear results
-        document.getElementById('clearButton').addEventListener('click', () => {
+        document.getElementById('clearButton').addEventListener('click', () => { 
             document.getElementById('searchResults').innerHTML = '';
             document.getElementById('searchResults').hidden = true;
             document.getElementById('searchInput').value = '';
         });
 
         // Filter buttons
-        document.querySelectorAll('.filter-btn').forEach(btn => {
+        document.querySelectorAll('.filter-btn').forEach(btn => { 
             btn.addEventListener('click', (e) => {
                 document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
                 e.target.classList.add('active');
@@ -61,40 +64,42 @@ class Bookshelf {
             });
         });
     }
-    
+ 
     
     //Search for books
-
     async searchBooks() {
-        const query = document.getElementById('searchInput').value.trim();
-        const resultsContainer = document.getElementById('searchResults');
+        const query = document.getElementById('searchInput').value.trim(); // get search input
+        const resultsContainer = document.getElementById('searchResults'); // results container
 
-        if(!query) {
+        if(!query) { // empty input check
             console.log("Nothing entered");
             alert('Please enter a Title or Author');
             return;
         }
 
-        try {
+        try { // show loading message
             resultsContainer.innerHTML = '<div class="empty-message">Searching...</div>';
             resultsContainer.classList.remove('hidden');
 
             //fetch
-            const response = await fetch(`https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&limit=9`);
-            const data = await response.json();
+            const response = await fetch(`https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&limit=9&fields=key,title,author_name,cover_i,first_publish_year,isbn,edition_key`); // limit to 9 results
+            if(!response.ok) throw new Error('Bad network response'); // check response
+            const data = await response.json(); // parse JSON into a JavaScript object
 
-            this.displaySearchResults(data.docs);
+            //display results
+            //Passes the array of books to displaySearchResults function
+            this.displaySearchResults(data.docs); // pass book docs to display function
             console.log("done");
             console.log(data.docs);
 
-        } catch (err) {
+        } catch (err) { // handle errors
             console.error(err);
             resultsContainer.innerHTML = '<div class="empty-message">Error searching books</div>';
         }
     }
 
     // display search results
-    displaySearchResults(books) {
+    displaySearchResults(books) { // books is an array of book objects pasased from Openlibrary's API during searchBooks()
         const resultsContainer = document.getElementById('searchResults');
 
         if(!books || books.length === 0) {
@@ -104,15 +109,16 @@ class Bookshelf {
 
         // ensure results area is visible
         resultsContainer.hidden = false;
-
-        resultsContainer.innerHTML = books.map(book => {
-            const title = book.title || 'Unknown Title';
-            const author = book.author_name ? book.author_name[0] : 'Unknown Author';
-            const coverId = book.cover_i;
-            const coverUrl = coverId ? `https://covers.openlibrary.org/b/id/${coverId}-M.jpg` : '';
-            const isbn = book.isbn ? book.isbn[0] : '';
-            const firstPublishYear = book.first_publish_year || '';
-
+        // build results HTML
+        resultsContainer.innerHTML = books.map(book => { // for each book object
+            const title = book.title || 'Unknown Title'; // get title
+            const author = book.author_name ? book.author_name[0] : 'Unknown Author'; //get Author
+            const coverId = book.cover_i; //get cover ID
+            const coverUrl = coverId ? `https://covers.openlibrary.org/b/id/${coverId}-M.jpg` : ''; //build cover URL
+            const firstPublishYear = book.first_publish_year || ''; //get first publish year
+            const isbns = Array.isArray(book.isbn) ? book.isbn : []; //get ISBNs array
+            
+            // return HTML for each book
             return `
                 <div class="search-result-item">
                     <div class="search-result-cover">
@@ -125,24 +131,27 @@ class Bookshelf {
                     <div class="book-actions">
                         <button class="action-btn btn-primary" onclick="bookshelfApp.addToBookshelf({
                             id: '${book.key}',
-                            title: '${this.escapeString(title)}',
-                            author: '${this.escapeString(author)}',
+                            title: '${bookshelfApp.escapeString(title)}',
+                            author: '${bookshelfApp.escapeString(author)}',
                             coverUrl: '${coverUrl}',
-                            isbn: '${isbn}',
                             firstPublishYear: '${firstPublishYear}',
+                            isbn: '${isbns}',
                             status: 'want-to-read'
                         })">Add to Bookshelf</button>
                         <button class="action-btn btn-secondary" onclick="bookshelfApp.addToWishlist({
                             id: '${book.key}',
-                            title: '${this.escapeString(title)}',
-                            author: '${this.escapeString(author)}',
+                            title: '${bookshelfApp.escapeString(title)}',
+                            author: '${bookshelfApp.escapeString(author)}',
                             coverUrl: '${coverUrl}',
-                            isbn: '${isbn}'
+                            firstPublishYear: '${firstPublishYear}',
+                            isbn: '${isbns}'
                         })">Add to Wishlist</button>
                     </div>
                 </div>
-            `;
-        }).join('');
+            `; // end return
+        }).join(''); // end map
+
+        // attach click listeners to results
 
         this.searchResultListeners();
     }
@@ -160,7 +169,7 @@ class Bookshelf {
         });
     }
 
-    // small helper to escape single quotes/backslashes for inline onclick payloads
+    // escape strings 
     escapeString(str) {
         if (str === null || str === undefined) return '';
         return String(str)
@@ -170,7 +179,7 @@ class Bookshelf {
             .replace(/\r/g, '');
     }
 
-    // add a book to the bookshelf (or update status if already exists)
+    // add a book to the bookshelf (or update status)
     addToBookshelf(item) {
         if (!item || !item.id) return;
 
@@ -184,11 +193,14 @@ class Bookshelf {
                 title: item.title || 'Unknown Title',
                 author: item.author || 'Unknown Author',
                 coverUrl: item.coverUrl || '',
-                isbn: item.isbn || '',
                 firstPublishYear: item.firstPublishYear || '',
-                status: item.status || 'want-to-read'
+                isbn: item.isbn ? item.isbn.slice(0, 13) : '',
+                status: item.status || 'want-to-read',
+                
             };
             this.bookshelf.push(book);
+            console.log(`${book.numPages} Pages`);
+            console.log(`ISBNs: ${book.isbn}`);
         }
 
         // remove from wishlist if present
@@ -211,7 +223,7 @@ class Bookshelf {
             title: item.title || 'Unknown Title',
             author: item.author || 'Unknown Author',
             coverUrl: item.coverUrl || '',
-            isbn: item.isbn || ''
+            firstPublishYear: item.firstPublishYear || ''
         };
 
         // don't add to wishlist if already on bookshelf
@@ -222,7 +234,7 @@ class Bookshelf {
         }
     }
 
-    removeFromBookshelf(id) {
+    removeFromBookshelf(id) { // remove a book from the bookshelf
         const idx = this.bookshelf.findIndex(b => b.id === id);
         if (idx === -1) return;
         this.bookshelf.splice(idx, 1);
@@ -230,7 +242,7 @@ class Bookshelf {
         this.renderBookshelf();
     }
 
-    removeFromWishlist(id) {
+    removeFromWishlist(id) { // remove a book from the wishlist
         const idx = this.wishlist.findIndex(b => b.id === id);
         if (idx === -1) return;
         this.wishlist.splice(idx, 1);
@@ -238,7 +250,7 @@ class Bookshelf {
         this.renderWishlist();
     }
 
-    updateBookStatus(id, status) {
+    updateBookStatus(id, status) { // update the reading status of a book
         const book = this.bookshelf.find(b => b.id === id);
         if (!book) return;
         book.status = status;
@@ -261,7 +273,7 @@ class Bookshelf {
         } else {
             container.innerHTML = booksToShow.map(b => {
                 return `
-                    <div class="book-card">
+                    <div class="book-card" data-id="${b.id}" data-title="${this.escapeString(b.title)}">
                         <div class="book-cover">${b.coverUrl ? `<img src="${b.coverUrl}" alt="${this.escapeString(b.title)}">` : 'No cover'}</div>
                         <div class="book-info">
                             <div class="book-title">${this.escapeString(b.title)}</div>
@@ -273,7 +285,7 @@ class Bookshelf {
                                     <option value="finished" ${b.status === 'finished' ? 'selected' : ''}>Finished</option>
                                 </select>
                                 <button onclick="bookshelfApp.removeFromBookshelf('${b.id}')">Remove</button>
-                                <button onclick="bookshelfApp.addToWishlist({ id: '${b.id}', title: '${this.escapeString(b.title)}', author: '${this.escapeString(b.author)}', coverUrl: '${b.coverUrl || ''}', isbn: '${b.isbn || ''}' })">Move to Wishlist</button>
+                                <button onclick="bookshelfApp.addToWishlist({ id: '${b.id}', title: '${this.escapeString(b.title)}', author: '${this.escapeString(b.author)}', coverUrl: '${b.coverUrl || ''}', firstPublishYear: '${b.firstPublishYear || ''}' })">Move to Wishlist</button>
                             </div>
                         </div>
                     </div>
@@ -282,6 +294,8 @@ class Bookshelf {
         }
 
         if (countEl) countEl.textContent = `(${this.bookshelf.length} books)`;
+        // attach click listeners for detail alert
+        this.bookDetailListeners();
     }
 
     // render the wishlist area
@@ -295,13 +309,13 @@ class Bookshelf {
         } else {
             container.innerHTML = this.wishlist.map(b => {
                 return `
-                    <div class="book-card">
+                    <div class="book-card" data-id="${b.id}" data-title="${this.escapeString(b.title)}">
                         <div class="book-cover">${b.coverUrl ? `<img src="${b.coverUrl}" alt="${this.escapeString(b.title)}">` : 'No cover'}</div>
                         <div class="book-info">
                             <div class="book-title">${this.escapeString(b.title)}</div>
                             <div class="book-author">${this.escapeString(b.author)}</div>
                             <div class="book-controls">
-                                <button onclick="bookshelfApp.addToBookshelf({ id: '${b.id}', title: '${this.escapeString(b.title)}', author: '${this.escapeString(b.author)}', coverUrl: '${b.coverUrl || ''}', isbn: '${b.isbn || ''}', status: 'want-to-read' })">Add to Bookshelf</button>
+                                <button onclick="bookshelfApp.addToBookshelf({ id: '${b.id}', title: '${this.escapeString(b.title)}', author: '${this.escapeString(b.author)}', coverUrl: '${b.coverUrl || ''}', firstPublishYear: '${b.firstPublishYear || ''}', status: 'want-to-read' })">Add to Bookshelf</button>
                                 <button onclick="bookshelfApp.removeFromWishlist('${b.id}')">Remove</button>
                             </div>
                         </div>
@@ -310,10 +324,82 @@ class Bookshelf {
             }).join('');
         }
 
-        if (countEl) countEl.textContent = `(${this.wishlist.length} books)`;
+        if (countEl) countEl.textContent = `(${this.wishlist.length} books)`; // update count
+        // attach click listeners for detail alert on wishlist items too
+        this.bookDetailListeners();
+    }
+    // book div click listener
+    bookDetailListeners() {
+        document.querySelectorAll('.book-card').forEach(card => {
+            card.addEventListener('click', (e) => {
+                if (e.target.tagName === 'BUTTON' || e.target.tagName === 'SELECT') return;
+                // call renderBookDetails and pass the card's title
+                const id = card.dataset.id;
+                const book = this.bookshelf.find(b => b.id === id) || this.wishlist.find(b => b.id === id);
+                if (!book) return;
+                this.renderBookDetails(book);
+
+
+
+
+            });
+        });
+    }
+    // Fetch description from the Openlibrary Works API
+    async fetchWorkDescription(workKey) {
+        if (!workKey) return null;
+        try {
+            const res = await fetch(`https://openlibrary.org${workKey}.json`);
+            if (!res.ok) return null;
+            const data = await res.json();
+
+            // description can be a string or an object { value: "..."}
+            if (typeof data.description === 'string') {
+                return data.description; // check for string and return string
+            } else if (data.description && typeof data.description.value === 'string') { // check for object with value
+                return data.description.value; // return value
+            }
+            return null;
+        } catch (e) { // handle errors
+            console.error('Failed to fetch description:', e);
+            return null;
+        }
+    }
+
+    // Render book details 
+    async renderBookDetails(book) {
+        const bookInfoSection = document.getElementById('book-info');
+        if (!bookInfoSection) {
+            console.error('book-info section not found');
+            return;
+        }
+        
+        const title = book.title || 'Unknown Title';
+        const author = book.author || 'N/A';
+        const year = book.firstPublishYear || 'N/A';
+        const coverUrl = book.coverUrl || '';
+        const description = await this.fetchWorkDescription(book.id);
+
+        // Unhide book info section
+        bookInfoSection.hidden = false;
+        
+        // Update the content in #bookDetails
+        const detailsContainer = document.getElementById('book-details');
+        if (detailsContainer) {
+            detailsContainer.innerHTML = `
+                ${coverUrl ? `<img src="${coverUrl}" alt="${title} cover" style="max-width:200px; margin-bottom: 1rem;">` : '<p>No cover available</p>'}
+                <h4>${title}</h4>
+                <p><strong>Author:</strong> ${author}</p>
+                <p><strong>Published:</strong> ${year}</p>
+                <p><strong>Description:</strong> ${description ? description : 'No description available.'}</p>
+            `;
+        }
+        
+
+        console.log('Render details for book:', title);
     }
 }
 
-// instantiate app and expose globally for inline handlers
+// instantiate app (outside class definition)
 const bookshelfApp = new Bookshelf();
 window.bookshelfApp = bookshelfApp;

@@ -15,8 +15,6 @@
             <h1>Bookpile</h1>
         </nav>
     </header>
-
-    
         <!-- Search Section -->
          <section class="search">
             <div class="search-box">
@@ -27,8 +25,6 @@
 
             <div id="searchResults" class="search-results" hidden></div>
          </section>
-
-        
 
     <main id="main-content">
         <!-- Main Book Pile -->
@@ -49,7 +45,15 @@
             <h2>Wishlist <span id="wishlistCount">(0 books)</span></h2>
             <div id="wishlistContainer" class="books-grid"></div>
         </section>
-
+        
+        <!-- Expanded Book Section -->
+        <section id="book-info" class="book-info" hidden>
+            <div class="book-info-content">
+                <h3>Book Details</h3>
+                <button id="closeBookInfo" class="close-btn">&times;</button>
+                <div id="book-details"></div>
+            </div>
+        </section>
     </main>
 
     <footer>
