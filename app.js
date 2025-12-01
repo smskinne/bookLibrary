@@ -72,7 +72,6 @@ class Bookshelf { // main app class
         const resultsContainer = document.getElementById('searchResults'); // results container
 
         if(!query) { // empty input check
-            console.log("Nothing entered");
             alert('Please enter a Title or Author');
             return;
         }
@@ -89,8 +88,6 @@ class Bookshelf { // main app class
             //display results
             //Passes the array of books to displaySearchResults function
             this.displaySearchResults(data.docs); // pass book docs to display function
-            console.log("done");
-            console.log(data.docs);
 
         } catch (err) { // handle errors
             console.error(err);
@@ -199,8 +196,6 @@ class Bookshelf { // main app class
                 
             };
             this.bookshelf.push(book);
-            console.log(`${book.numPages} Pages`);
-            console.log(`ISBNs: ${book.isbn}`);
         }
 
         // remove from wishlist if present
@@ -366,6 +361,17 @@ class Bookshelf { // main app class
         }
     }
 
+    async fetchPagesByIsbn(isbn) {
+        if (!isbn) return null;
+        try {
+            const res = await fetch(`https://openlibrary.org/isbn/${isbn}.json`);
+            if (!res.ok) return null;
+            const ed = await res.json();
+            return typeof ed.number_of_pages === 'number' ? ed.number_of_pages : null;
+        } catch {
+            return null;
+        }
+    }
     // Render book details 
     async renderBookDetails(book) {
         const bookInfoSection = document.getElementById('book-info');
@@ -379,6 +385,7 @@ class Bookshelf { // main app class
         const year = book.firstPublishYear || 'N/A';
         const coverUrl = book.coverUrl || '';
         const description = await this.fetchWorkDescription(book.id);
+        const pages = await this.fetchPagesByIsbn(book.isbn);
 
         // Unhide book info section
         bookInfoSection.hidden = false;
@@ -392,11 +399,11 @@ class Bookshelf { // main app class
                 <p><strong>Author:</strong> ${author}</p>
                 <p><strong>Published:</strong> ${year}</p>
                 <p><strong>Description:</strong> ${description ? description : 'No description available.'}</p>
+                <p><strong>Pages:</strong> ${pages !== null ? pages : 'N/A'}</p>
             `;
         }
         
 
-        console.log('Render details for book:', title);
     }
 }
 
