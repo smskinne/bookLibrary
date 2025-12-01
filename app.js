@@ -133,7 +133,8 @@ class Bookshelf { // main app class
                             coverUrl: '${coverUrl}',
                             firstPublishYear: '${firstPublishYear}',
                             isbn: '${isbns}',
-                            status: 'want-to-read'
+                            status: 'want-to-read',
+                            notes: ''
                         })">Add to Bookshelf</button>
                         <button class="action-btn btn-secondary" onclick="bookshelfApp.addToWishlist({
                             id: '${book.key}',
@@ -348,7 +349,7 @@ class Bookshelf { // main app class
             if (!res.ok) return null;
             const data = await res.json();
 
-            // description can be a string or an object { value: "..."}
+            // description can be a string or an object 
             if (typeof data.description === 'string') {
                 return data.description; // check for string and return string
             } else if (data.description && typeof data.description.value === 'string') { // check for object with value
@@ -386,6 +387,7 @@ class Bookshelf { // main app class
         const coverUrl = book.coverUrl || '';
         const description = await this.fetchWorkDescription(book.id);
         const pages = await this.fetchPagesByIsbn(book.isbn);
+        const notes = book.notes || 'Your notes will appear here.';
 
         // Unhide book info section
         bookInfoSection.hidden = false;
@@ -400,10 +402,57 @@ class Bookshelf { // main app class
                 <p><strong>Published:</strong> ${year}</p>
                 <p><strong>Description:</strong> ${description ? description : 'No description available.'}</p>
                 <p><strong>Pages:</strong> ${pages !== null ? pages : 'N/A'}</p>
+                <p><strong>Notes:</strong> ${this.escapeString(notes)}</p>
+
+                <div id="notesSection">
+                <label for="user-notes-input"><strong>Edit Notes:</strong></label>
+                <textarea id="user-notes-input" placeholder="Add your notes here..."></textarea>
+                <button id="save-notes" class="action-btn btn-primary">Save Notes</button>
+                <button id="clear-notes" class="action-btn btn-secondary">Clear Notes</button>
+                </div>
+
             `;
         }
-        
+        //save notes event listener
+        const saveNotesBtn = document.getElementById('save-notes');
+        const notesInput = document.getElementById('user-notes-input');
+        if (saveNotesBtn && notesInput) {
+            saveNotesBtn.onclick = () => {
+                const noteValue = (notesInput.value || '').trim();
+                if (noteValue.length === 0) {
+                    alert('Please enter some notes before saving.');
+                    return;
+                }
+                this.saveNotes(book.id, notesInput.value);
+            };
 
+        }
+        //clear notes event listener
+        const clearNotesBtn = document.getElementById('clear-notes');
+        if (clearNotesBtn && notesInput) {
+            clearNotesBtn.onclick = () => {
+                this.clearNotes(book.id);
+            };
+        }
+    }
+    // Save user notes for a book
+    saveNotes(bookId, notesInput) {
+        const book = this.bookshelf.find(b => b.id === bookId);
+        if (!book) return;
+        book.notes = book.notes + "<br>" + notesInput;
+        this.saveData();
+        this.renderBookDetails(book); // re-render details to show updated notes
+        console.log('Notes saved: ', book.notes);
+
+    }
+    //clear user notes for a book
+    clearNotes(bookId) {
+        const book = this.bookshelf.find(b => b.id === bookId);
+        if (!book) return;
+        book.notes = '';
+        this.saveData();
+        this.renderBookDetails(book); // re-render details to show cleared notes
+        console.log('Notes cleared');
     }
 }
 
