@@ -232,8 +232,6 @@ nav ul li a:hover {
     padding-top: 1rem;
     justify-content: center;
 }
-
-
 #searchInput {
     background-color: var(--bluegrey);
     color: var(--darkblue);
