@@ -8,7 +8,7 @@
     box-sizing: border-box;
     /*fonts*/
     --headerFont: 'Prata', serif;
-    --bodyFont: 'Recursive', sans-serif;
+    --bodyFont: 'Crimson Text', serif;
     --bg-color: #09090D;
     --text-color: #BFB7A8;
     /*color palette*/
@@ -180,7 +180,9 @@ header h1::before, header h1::after {
 }
 nav ul {
     position: relative;
-    padding: 1rem 0;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
     background-color: var(--beige);
     width: 100vw;
     display: flex;
