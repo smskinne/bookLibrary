@@ -110,6 +110,7 @@ body {
     font-family: var(--bodyFont);
     background-color: var(--darkblue);
     color: var(--text-color);
+    overflow: hidden;
 }
 
 
