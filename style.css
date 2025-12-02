@@ -415,7 +415,6 @@ body:has(#book-info:not([hidden]))::before {
     font-size: 16px;
 }
 .search-results {
-    grid-row: 2/2;
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 1.5rem;
@@ -473,15 +472,31 @@ body:has(#book-info:not([hidden]))::before {
 
 /* Medium screens (tablets, small laptops) */
 @media (min-width: 576px) and (max-width: 767.98px) {
-  /* ...add styles for small tablets / large phones here... */
+  .search-results {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
 }
 
 /* Large screens (laptops/desktops) */
 @media (min-width: 768px) and (max-width: 1199.98px) {
-  /* ...add styles for laptops/desktops here... */
+    .search-results {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
 }
 
 /* Extra-large screens (wide desktops) */
 @media (min-width: 1200px) {
-  /* ...add styles for very large screens here... */
+    .search-results {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
 }
