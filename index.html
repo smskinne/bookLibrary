@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Bookpile</title>
+    <title>Bookile</title>
     <meta name="description" content="A simple book library web app." />
     <link rel="icon" href="favicon.ico" />
     <link rel="stylesheet" href="style.css" />
@@ -12,7 +12,16 @@
 <body>
     <header>
         <nav>
-            <h1>Bookpile</h1>
+            <div class="bookshelf-graphic">
+                <span class="book-graphics book-graphics-left" aria-hidden="true"></span>
+                <h1>Bookpile</h1>
+                <span class="book-graphics book-graphics-right" aria-hidden="true"></span>
+            </div>
+            <ul>
+                <li><a href="#main-content">My Pile</a></li>
+                <li><a href="#wishlist">Wishlist</a></li>
+                <li><a href="#">About</a></li>
+            </ul>
         </nav>
     </header>
         <!-- Search Section -->
@@ -49,7 +58,6 @@
         <!-- Expanded Book Section -->
         <section id="book-info" class="book-info" hidden>
             <div class="book-info-content">
-                <h3>Book Details</h3>
                 <button id="closeBookInfo" class="close-btn">&times;</button>
                 <div id="book-details"></div>
             </div>
@@ -57,13 +65,8 @@
     </main>
 
     <footer>
-        <small>&copy; <span id="year"></span>Footer</small>
+        <small>&copy; <span id="year"></span> Bookpile</small>
     </footer>
-
-    <script>
-        // set current year
-        document.getElementById('year').textContent = new Date().getFullYear();
-    </script>
     <script src="app.js" defer></script>
 </body>
 </html>

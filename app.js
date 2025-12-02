@@ -398,18 +398,22 @@ class Bookshelf { // main app class
             detailsContainer.innerHTML = `
                 ${coverUrl ? `<img src="${coverUrl}" alt="${title} cover" style="max-width:200px; margin-bottom: 1rem;">` : '<p>No cover available</p>'}
                 <h4>${title}</h4>
-                <p><strong>Author:</strong> ${author}</p>
-                <p><strong>Published:</strong> ${year}</p>
-                <p><strong>Description:</strong> ${description ? description : 'No description available.'}</p>
-                <p><strong>Pages:</strong> ${pages !== null ? pages : 'N/A'}</p>
-                <p><strong>Notes:</strong> ${this.escapeString(notes)}</p>
-
+                <p id="details-author"><strong>Author:</strong> ${author}</p>
+                <p id="details-published"><strong>Published:</strong> ${year}</p>
+                <p id="details-description"><strong>Description:</strong> ${description ? description : 'No description available.'}</p>
+                <p id="details-pages"><strong>Pages:</strong> ${pages !== null ? pages : 'N/A'}</p>
+                <p id="details-notes"><strong>Notes:</strong> ${this.escapeString(notes)}</p>
                 <div id="notesSection">
                 <label for="user-notes-input"><strong>Edit Notes:</strong></label>
                 <textarea id="user-notes-input" placeholder="Add your notes here..."></textarea>
                 <button id="save-notes" class="action-btn btn-primary">Save Notes</button>
                 <button id="clear-notes" class="action-btn btn-secondary">Clear Notes</button>
                 </div>
+                <select id="status-select" onchange="bookshelfApp.updateBookStatus('${book.id}', this.value)">
+                    <option value="want-to-read" ${book.status === 'want-to-read' ? 'selected' : ''}>Want to Read</option>
+                    <option value="reading" ${book.status === 'reading' ? 'selected' : ''}>Currently Reading</option>
+                    <option value="finished" ${book.status === 'finished' ? 'selected' : ''}>Finished</option>
+                </select>
 
             `;
         }
@@ -456,6 +460,8 @@ class Bookshelf { // main app class
     }
 }
 
+//Current year (footer)
+document.getElementById('year').textContent = new Date().getFullYear();
 // instantiate app (outside class definition)
 const bookshelfApp = new Bookshelf();
 window.bookshelfApp = bookshelfApp;
