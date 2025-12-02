@@ -269,6 +269,21 @@ h1 {
     transform: translate(-50%, -50%);
     background-color: white;
     padding: 20px;
+    max-height: 80vh;
+    overflow-y: auto;
+    max-width: 80vw;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+}
+/* Overlay effect when book-info is visible */
+body:has(#book-info:not([hidden]))::before {
+    content: "";
+    position: fixed;
+    inset: 0; /* cover the entire viewport */
+    z-index: 998; /* below the modal */
+    background: rgba(255, 255, 255, 0.25); /* translucent overlay */
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
 }
 
 
