@@ -81,7 +81,7 @@ class Bookshelf { // main app class
             resultsContainer.classList.remove('hidden');
 
             //fetch
-            const response = await fetch(`https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&limit=9&fields=key,title,author_name,cover_i,first_publish_year,isbn,edition_key`); // limit to 9 results
+            const response = await fetch(`https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&limit=12&fields=key,title,author_name,cover_i,first_publish_year,isbn,edition_key`); // limit to 12 results
             if(!response.ok) throw new Error('Bad network response'); // check response
             const data = await response.json(); // parse JSON into a JavaScript object
 
