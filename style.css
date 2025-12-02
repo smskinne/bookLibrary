@@ -105,12 +105,16 @@ table {
 }
 
 /* Start custom styles */
+html, body {
+    height: 100%;
+    line-height: 1.5;
+    overflow-x: hidden;
+}
 
 body {
     font-family: var(--bodyFont);
     background-color: var(--darkblue);
     color: var(--text-color);
-    overflow-x: hidden;
 }
 
 
@@ -175,9 +179,9 @@ header h1::before, header h1::after {
     height: 5px;
     background-color: var(--beige);
     position: absolute;
-    left: 50%;
+    width: 100vw;          
     transform: translateX(-50%);
-    width: 100vw;
+    left: 50%;
 }
 nav ul {
     position: relative;
@@ -185,7 +189,7 @@ nav ul {
     padding-top: 1rem;
     padding-bottom: 1rem;
     background-color: var(--beige);
-    width: 100vw;
+    width: 100vw;          
     display: flex;
     flex-direction: row;
     gap: 2rem;
@@ -193,6 +197,7 @@ nav ul {
     justify-content: center;
     box-shadow : 0 4px 12px rgba(0, 0, 0, 0.3);
 }
+
 nav ul li a {
     font-size: 1.25rem;
     background-color: var(--beige);
@@ -460,7 +465,7 @@ body:has(#book-info:not([hidden]))::before {
 
 /* Phone (small) screens */
 @media (max-width: 575.98px) {
-  /* ...add styles for phones here... */
+  .book-graphics { display: none; }
 }
 
 /* Medium screens (tablets, small laptops) */
