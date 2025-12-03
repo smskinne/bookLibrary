@@ -12,6 +12,9 @@
 <body>
     <header>
         <nav>
+            <div class="light-mode-toggle">
+                <button id="lightModeToggle" aria-pressed="false">☼</button>
+            </div>
             <div class="bookshelf-graphic">
                 <span class="book-graphics book-graphics-left" aria-hidden="true"></span>
                 <h1>Bookpile</h1>
@@ -31,6 +34,14 @@
                     <input type="text" id="searchInput" placeholder="Search for books by title">
                     <button id="searchButton">Search</button>
                     <button id="clearButton">Clear</button>
+                    <label for="searchItems" class="search-results-label">Search Results:</label>
+                    <select id="searchItems" aria-label="Number of search results to display">
+                        <option value="5">5</option>
+                        <option value="10" selected>10</option>
+                        <option value="15">15</option>
+                        <option value="20">20</option>
+                        <option value="25">25</option>
+                    </select>
                 </div>
             </div>
             <div id="searchResults" class="search-results" hidden></div>
@@ -64,7 +75,7 @@
             </div>
         </section>
     </main>
-
+    <div id="toast" class="toast" role="alert" aria-live="assertive" aria-atomic="true" hidden></div>
     <footer>
         <small>&copy; <span id="year"></span> Bookpile</small>
     </footer>

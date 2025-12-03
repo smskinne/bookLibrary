@@ -70,6 +70,7 @@ class Bookshelf { // main app class
     async searchBooks() {
         const query = document.getElementById('searchInput').value.trim(); // get search input
         const resultsContainer = document.getElementById('searchResults'); // results container
+        const searchItems = document.getElementById('searchItems').value; // number of items to fetch
 
         if(!query) { // empty input check
             alert('Please enter a Title or Author');
@@ -81,7 +82,7 @@ class Bookshelf { // main app class
             resultsContainer.classList.remove('hidden');
 
             //fetch
-            const response = await fetch(`https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&limit=12&fields=key,title,author_name,cover_i,first_publish_year,isbn,edition_key`); // limit to 12 results
+            const response = await fetch(`https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&limit=${searchItems}&fields=key,title,author_name,cover_i,first_publish_year,isbn,edition_key`); // limit to 12 results
             if(!response.ok) throw new Error('Bad network response'); // check response
             const data = await response.json(); // parse JSON into a JavaScript object
 
@@ -197,6 +198,13 @@ class Bookshelf { // main app class
                 
             };
             this.bookshelf.push(book);
+            //toast notification
+            const toast = document.getElementById('toast');
+            toast.textContent = `"${book.title}" added to your Bookshelf!`;
+            toast.hidden = false;
+            setTimeout(() => {
+                toast.hidden = true;
+            }, 3000);
         }
 
         // remove from wishlist if present
@@ -228,6 +236,13 @@ class Bookshelf { // main app class
             this.saveData();
             this.renderWishlist();
         }
+        //toast notification
+        const toast = document.getElementById('toast');
+        toast.textContent = `"${book.title}" added to your Wishlist!`;
+        toast.hidden = false;
+        setTimeout(() => {
+            toast.hidden = true;
+        }, 3000);
     }
 
     removeFromBookshelf(id) { // remove a book from the bookshelf
@@ -236,14 +251,24 @@ class Bookshelf { // main app class
         this.bookshelf.splice(idx, 1);
         this.saveData();
         this.renderBookshelf();
+
+        //toast notification
+        const toast = document.getElementById('toast');
+        toast.textContent = `"${book.title}" removed from your Bookshelf!`;
+        toast.hidden = false;
+        setTimeout(() => {
+            toast.hidden = true;
+        }, 3000);
     }
 
     removeFromWishlist(id) { // remove a book from the wishlist
         const idx = this.wishlist.findIndex(b => b.id === id);
         if (idx === -1) return;
+        
         this.wishlist.splice(idx, 1);
         this.saveData();
         this.renderWishlist();
+
     }
 
     updateBookStatus(id, status) { // update the reading status of a book
@@ -253,6 +278,33 @@ class Bookshelf { // main app class
         this.saveData();
         this.renderBookshelf();
     }
+    //Move from bookshelf to wishlist
+    moveToWishlist(id) {
+        const idx = this.bookshelf.findIndex(b => b.id === id);
+        if (idx === -1) return;
+        const book = this.bookshelf.splice(idx, 1)[0];
+        if (!this.wishlist.find(b => b.id === book.id)) {
+            this.wishlist.push({
+                id: book.id,
+                title: book.title,
+                author: book.author,
+                coverUrl: book.coverUrl || '',
+                firstPublishYear: book.firstPublishYear || ''
+            });
+        }
+        const toast = document.getElementById('toast');
+        toast.textContent = `"${book.title}" moved to your Wishlist!`;
+        toast.hidden = false;
+        setTimeout(() => {
+            toast.hidden = true;
+        }, 3000);
+
+        this.saveData();
+        this.renderBookshelf();
+        this.renderWishlist();
+    }
+
+
 
     // render the bookshelf area
     renderBookshelf() {
@@ -281,13 +333,14 @@ class Bookshelf { // main app class
                                     <option value="finished" ${b.status === 'finished' ? 'selected' : ''}>Finished</option>
                                 </select>
                                 <button onclick="bookshelfApp.removeFromBookshelf('${b.id}')">Remove</button>
-                                <button onclick="bookshelfApp.addToWishlist({ id: '${b.id}', title: '${this.escapeString(b.title)}', author: '${this.escapeString(b.author)}', coverUrl: '${b.coverUrl || ''}', firstPublishYear: '${b.firstPublishYear || ''}' })">Move to Wishlist</button>
+                                <button onclick="bookshelfApp.moveToWishlist('${b.id}')">Move to Wishlist</button>
                             </div>
                         </div>
                     </div>
                 `;
             }).join('');
         }
+
 
         if (countEl) countEl.textContent = `(${this.bookshelf.length} books)`;
         // attach click listeners for detail alert
@@ -396,25 +449,35 @@ class Bookshelf { // main app class
         const detailsContainer = document.getElementById('book-details');
         if (detailsContainer) {
             detailsContainer.innerHTML = `
-                ${coverUrl ? `<img src="${coverUrl}" alt="${title} cover" style="max-width:200px; margin-bottom: 1rem;">` : '<p>No cover available</p>'}
-                <h4>${title}</h4>
-                <p id="details-author"><strong>Author:</strong> ${author}</p>
-                <p id="details-published"><strong>Published:</strong> ${year}</p>
-                <p id="details-description"><strong>Description:</strong> ${description ? description : 'No description available.'}</p>
-                <p id="details-pages"><strong>Pages:</strong> ${pages !== null ? pages : 'N/A'}</p>
-                <p id="details-notes"><strong>Notes:</strong> ${this.escapeString(notes)}</p>
-                <div id="notesSection">
-                <label for="user-notes-input"><strong>Edit Notes:</strong></label>
-                <textarea id="user-notes-input" placeholder="Add your notes here..."></textarea>
-                <button id="save-notes" class="action-btn btn-primary">Save Notes</button>
-                <button id="clear-notes" class="action-btn btn-secondary">Clear Notes</button>
+                <div class="details-cover">
+                    ${coverUrl ? `<img src="${coverUrl}" alt="${title} cover">` : '<p>No cover available</p>'}
                 </div>
-                <select id="status-select" onchange="bookshelfApp.updateBookStatus('${book.id}', this.value)">
-                    <option value="want-to-read" ${book.status === 'want-to-read' ? 'selected' : ''}>Want to Read</option>
-                    <option value="reading" ${book.status === 'reading' ? 'selected' : ''}>Currently Reading</option>
-                    <option value="finished" ${book.status === 'finished' ? 'selected' : ''}>Finished</option>
-                </select>
-
+                <div class="details-title">${title}</div>
+                <div class="details-author"><strong>Author:</strong> ${author}</div>
+                <div class="details-published"><strong>Published:</strong> ${year}</div>
+                <div class="details-pages"><strong>Pages:</strong> ${pages !== null ? pages : 'N/A'}</div>
+                <div class="details-description"><strong>Description:</strong> ${description ? description : 'No description available.'}</div>
+                <div class="details-notes"><strong>Notes:</strong> ${this.escapeString(notes)}</div>
+                <div class="details-notes-input">
+                    <label for="user-notes-input"><strong>Edit Notes:</strong></label>
+                    <textarea id="user-notes-input" placeholder="Add your notes here..."></textarea>
+                    <button id="save-notes" class="action-btn btn-primary">Save Notes</button>
+                    <button id="clear-notes" class="action-btn btn-secondary">Clear Notes</button>
+                </div>
+                <div class="details-controls">
+                    ${this.bookshelf.find(b => b.id === book.id) ? `
+                        <select id="status-select" onchange="bookshelfApp.updateBookStatus('${book.id}', this.value)">
+                            <option value="want-to-read" ${book.status === 'want-to-read' ? 'selected' : ''}>Want to Read</option>
+                            <option value="reading" ${book.status === 'reading' ? 'selected' : ''}>Currently Reading</option>
+                            <option value="finished" ${book.status === 'finished' ? 'selected' : ''}>Finished</option>
+                        </select>
+                        <button class="action-btn btn-secondary" onclick="bookshelfApp.removeFromBookshelf('${book.id}'); document.getElementById('book-info').hidden = true;">Remove from Bookshelf</button>
+                        <button class="action-btn btn-secondary" onclick="bookshelfApp.moveToWishlist('${book.id}'); document.getElementById('book-info').hidden = true;">Move to Wishlist</button>
+                    ` : `
+                        <button class="action-btn btn-primary" onclick="bookshelfApp.addToBookshelf({ id: '${book.id}', title: '${this.escapeString(book.title)}', author: '${this.escapeString(book.author)}', coverUrl: '${book.coverUrl || ''}', firstPublishYear: '${book.firstPublishYear || ''}', status: 'want-to-read' }); document.getElementById('book-info').hidden = true;">Add to Bookshelf</button>
+                        <button class="action-btn btn-secondary" onclick="bookshelfApp.removeFromWishlist('${book.id}'); document.getElementById('book-info').hidden = true;">Remove from Wishlist</button>
+                    `}
+                </div>
             `;
         }
         //save notes event listener
@@ -430,7 +493,7 @@ class Bookshelf { // main app class
                 this.saveNotes(book.id, notesInput.value);
             };
 
-        }
+        }   
         //clear notes event listener
         const clearNotesBtn = document.getElementById('clear-notes');
         if (clearNotesBtn && notesInput) {
@@ -459,6 +522,14 @@ class Bookshelf { // main app class
         console.log('Notes cleared');
     }
 }
+//light mode event listener
+document.getElementById('lightModeToggle').addEventListener('click', () => {
+    document.body.classList.toggle('light-mode');
+    const isLightMode = document.body.classList.contains('light-mode');
+    document.getElementById('lightModeToggle').setAttribute('aria-pressed', isLightMode);
+});
+
+
 
 //Current year (footer)
 document.getElementById('year').textContent = new Date().getFullYear();
