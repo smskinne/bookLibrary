@@ -54,7 +54,6 @@ class Bookshelf { // main app class
             document.getElementById('searchInput').value = '';
         });
 
-        // Filter buttons
         document.querySelectorAll('.filter-btn').forEach(btn => { 
             btn.addEventListener('click', (e) => {
                 document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -82,7 +81,7 @@ class Bookshelf { // main app class
             resultsContainer.classList.remove('hidden');
 
             //fetch
-            const response = await fetch(`https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&limit=${searchItems}&fields=key,title,author_name,cover_i,first_publish_year,isbn,edition_key`); // limit to 12 results
+            const response = await fetch(`https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&limit=${searchItems}&fields=key,title,author_name,cover_i,first_publish_year,isbn,edition_key&language=eng`); // limit to 12 results
             if(!response.ok) throw new Error('Bad network response'); // check response
             const data = await response.json(); // parse JSON into a JavaScript object
 
@@ -227,7 +226,8 @@ class Bookshelf { // main app class
             title: item.title || 'Unknown Title',
             author: item.author || 'Unknown Author',
             coverUrl: item.coverUrl || '',
-            firstPublishYear: item.firstPublishYear || ''
+            firstPublishYear: item.firstPublishYear || '',
+            notes: item.notes || ''
         };
 
         // don't add to wishlist if already on bookshelf
@@ -248,6 +248,7 @@ class Bookshelf { // main app class
     removeFromBookshelf(id) { // remove a book from the bookshelf
         const idx = this.bookshelf.findIndex(b => b.id === id);
         if (idx === -1) return;
+        const book = this.bookshelf[idx];
         this.bookshelf.splice(idx, 1);
         this.saveData();
         this.renderBookshelf();
@@ -289,7 +290,9 @@ class Bookshelf { // main app class
                 title: book.title,
                 author: book.author,
                 coverUrl: book.coverUrl || '',
-                firstPublishYear: book.firstPublishYear || ''
+                firstPublishYear: book.firstPublishYear || '',
+                isbn: book.isbn || '',
+                notes: book.notes || ''
             });
         }
         const toast = document.getElementById('toast');
@@ -504,22 +507,26 @@ class Bookshelf { // main app class
     }
     // Save user notes for a book
     saveNotes(bookId, notesInput) {
-        const book = this.bookshelf.find(b => b.id === bookId);
+        const book = this.bookshelf.find(b => b.id === bookId) || this.wishlist.find(b => b.id === bookId);
         if (!book) return;
-        book.notes = book.notes + "<br>" + notesInput;
+        
+        // Check if existing notes exist before appending
+        if (book.notes && book.notes.trim() !== '' && book.notes !== 'Your notes will appear here.') {
+            book.notes = book.notes + "<br>" + notesInput;
+        } else {
+            book.notes = notesInput;
+        }
+        
         this.saveData();
-        this.renderBookDetails(book); // re-render details to show updated notes
-        console.log('Notes saved: ', book.notes);
-
+        this.renderBookDetails(book);
     }
     //clear user notes for a book
     clearNotes(bookId) {
-        const book = this.bookshelf.find(b => b.id === bookId);
+        const book = this.bookshelf.find(b => b.id === bookId) || this.wishlist.find(b => b.id === bookId);
         if (!book) return;
         book.notes = '';
         this.saveData();
-        this.renderBookDetails(book); // re-render details to show cleared notes
-        console.log('Notes cleared');
+        this.renderBookDetails(book);
     }
 }
 //light mode event listener

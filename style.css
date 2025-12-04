@@ -526,6 +526,10 @@ nav ul li a:hover {
     border: 2px solid var(--darkblue);
 }
 
+#book-details .details-notes-input button:hover {
+    background-color: var(--bluegrey);
+}
+
 #book-details .details-controls {
     grid-area: controls;
     display: flex;
@@ -570,6 +574,17 @@ body:has(#book-info:not([hidden]))::before {
     max-width: 600px;
     max-height: 600px;
     overflow-y: auto;
+}
+.close-btn{
+    padding: 0.25rem .75rem;
+    border: 2px solid var(--text-color);
+    font-size: 1.25rem;
+}
+.close-btn:hover {
+    padding: 0.35rem .85rem;
+    background-color: var(--bluegrey);
+    color: var(--darkblue);
+    transition-duration: .2s;
 }
 #book-details {
     display: grid;

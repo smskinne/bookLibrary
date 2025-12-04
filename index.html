@@ -4,22 +4,27 @@
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Bookile</title>
-    <meta name="description" content="A simple book library web app." />
+    <meta name="author" content="Shaun Skinner">
+    <meta name="description" content="A simple book library web app to track your reading list and wishlist." />
     <link rel="icon" href="favicon.ico" />
     <link rel="stylesheet" href="style.css" />
+    <title>Bookpile</title>
 </head>
 <body>
-    <header>
-        <nav>
+    <!-- Header and Navigation -->
+    <header role="banner">
+        <nav role="navigation" aria-label="Main navigation">
+            <!-- Light/Dark Mode Toggle -->
             <div class="light-mode-toggle">
-                <button id="lightModeToggle" aria-pressed="false">☼</button>
+                <button id="lightModeToggle" aria-pressed="false" aria-label="Toggle light mode">☼</button>
             </div>
+            <!-- Decorative Bookshelf Graphic and Title -->
             <div class="bookshelf-graphic">
                 <span class="book-graphics book-graphics-left" aria-hidden="true"></span>
                 <h1>Bookpile</h1>
                 <span class="book-graphics book-graphics-right" aria-hidden="true"></span>
             </div>
+            <!-- Navigation Links -->
             <ul>
                 <li><a href="#main-content">My Pile</a></li>
                 <li><a href="#wishlist">Wishlist</a></li>
@@ -27,58 +32,68 @@
             </ul>
         </nav>
     </header>
-        <!-- Search Section -->
-         <section class="search">
-            <div class="search-bars">
-                <div class="search-box">
-                    <input type="text" id="searchInput" placeholder="Search for books by title">
-                    <button id="searchButton">Search</button>
-                    <button id="clearButton">Clear</button>
-                    <label for="searchItems" class="search-results-label">Search Results:</label>
-                    <select id="searchItems" aria-label="Number of search results to display">
-                        <option value="5">5</option>
-                        <option value="10" selected>10</option>
-                        <option value="15">15</option>
-                        <option value="20">20</option>
-                        <option value="25">25</option>
-                    </select>
-                </div>
+
+    <!-- Search Section -->
+    <section class="search" aria-label="Book search">
+        <div class="search-bars">
+            <div class="search-box" role="search">
+                <input type="search" id="searchInput" placeholder="Search for books by title or author" aria-label="Search for books by title or author">
+                <button id="searchButton" aria-label="Search">Search</button>
+                <button id="clearButton" aria-label="Clear search results">Clear</button>
+                <label for="searchItems" class="search-results-label">Results:</label>
+                <select id="searchItems" aria-label="Number of search results to display">
+                    <option value="5">5</option>
+                    <option value="10" selected>10</option>
+                    <option value="15">15</option>
+                    <option value="20">20</option>
+                    <option value="25">25</option>
+                </select>
             </div>
-            <div id="searchResults" class="search-results" hidden></div>
-         </section>
+        </div>
+        <!-- Search Results Container (JavaScript) -->
+        <div id="searchResults" class="search-results" role="region" aria-label="Search results" aria-live="polite" hidden></div>
+    </section>
 
-    <main id="main-content">
-        <!-- Main Book Pile -->
-         <section class="book-pile">
-            <h2>My Pile <span id="bookPileCount">(0 books)</span></h2>
+    <!-- Main Content -->
+    <main id="main-content" role="main">
+        <!-- Book Pile Section -->
+        <section class="book-pile" aria-labelledby="pile-heading">
+            <h2 id="pile-heading">My Pile <span id="bookPileCount" aria-live="polite">(0 books)</span></h2>
+            <!-- Filter Buttons -->
+            <div class="filter-buttons" role="group" aria-label="Filter books by reading status">
+                <button class="filter-btn active" data-filter="all" aria-pressed="true">All Books</button>
+                <button class="filter-btn" data-filter="want-to-read" aria-pressed="false">Want to Read</button>
+                <button class="filter-btn" data-filter="reading" aria-pressed="false">Currently Reading</button>
+                <button class="filter-btn" data-filter="finished" aria-pressed="false">Finished</button>
+            </div>
+            <!-- Bookshelf Container (to be populated by JavaScript) -->
+            <div id="bookshelfContainer" class="books-grid" role="list" aria-label="Books in your pile"></div>
+        </section>
 
-             <div class="filter-buttons">
-                    <button class="filter-btn active" data-filter="all">All Books</button>
-                    <button class="filter-btn" data-filter="want-to-read">Want to Read</button>
-                    <button class="filter-btn" data-filter="reading">Currently Reading</button>
-                    <button class="filter-btn" data-filter="finished">Finished</button>
-                </div>
-                <div id="bookshelfContainer" class="books-grid"></div>
-         </section>
-
-        <!--Wishlist-->
-        <section class="wishlist">
-            <h2>Wishlist <span id="wishlistCount">(0 books)</span></h2>
-            <div id="wishlistContainer" class="books-grid"></div>
+        <!-- Wishlist Section -->
+        <section id="wishlist" class="wishlist" aria-labelledby="wishlist-heading">
+            <h2 id="wishlist-heading">Wishlist <span id="wishlistCount" aria-live="polite">(0 books)</span></h2>
+            <!-- Wishlist Container (Javascript) -->
+            <div id="wishlistContainer" class="books-grid" role="list" aria-label="Books in your wishlist"></div>
         </section>
         
-        <!-- Expanded Book Section -->
-        <section id="book-info" class="book-info" hidden>
+        <!-- Book Details -->
+        <section id="book-info" class="book-info" role="dialog" aria-modal="true" aria-labelledby="book-details-title" hidden>
             <div class="book-info-content">
-                <button id="closeBookInfo" class="close-btn">&times;</button>
+                <button id="closeBookInfo" class="close-btn" aria-label="Close book details">&times;</button>
                 <div id="book-details"></div>
             </div>
         </section>
     </main>
-    <div id="toast" class="toast" role="alert" aria-live="assertive" aria-atomic="true" hidden></div>
-    <footer>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true" hidden></div>
+
+    <!-- Footer -->
+    <footer role="contentinfo">
         <small>&copy; <span id="year"></span> Bookpile</small>
     </footer>
+
     <script src="app.js" defer></script>
 </body>
 </html>
