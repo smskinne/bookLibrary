@@ -21,39 +21,39 @@ class Bookshelf { // main app class
 
     //load data
     loadData(){
-        const savedBookshelf = localStorage.getItem('digitalBookshelf');
-        const savedWishlist = localStorage.getItem('digitalWishlist');
+        const savedBookshelf = localStorage.getItem('digitalBookshelf'); // retrieve bookshelf data
+        const savedWishlist = localStorage.getItem('digitalWishlist'); // retrieve wishlist data
 
-        this.bookshelf = savedBookshelf ? JSON.parse(savedBookshelf) : [];
-        this.wishlist = savedWishlist ? JSON.parse(savedWishlist) : [];
+        this.bookshelf = savedBookshelf ? JSON.parse(savedBookshelf) : []; // parse bookshelf data or initialize empty array
+        this.wishlist = savedWishlist ? JSON.parse(savedWishlist) : []; // parse wishlist data or initialize empty array
     }
 
     //Save Data
 
     saveData() {
-        localStorage.setItem('digitalBookshelf', JSON.stringify(this.bookshelf));
-        localStorage.setItem('digitalWishlist', JSON.stringify(this.wishlist));
+        localStorage.setItem('digitalBookshelf', JSON.stringify(this.bookshelf)); // save bookshelf data as JSON string
+        localStorage.setItem('digitalWishlist', JSON.stringify(this.wishlist)); // save wishlist data as JSON string
     }
 
     //Event Listeners
     startupEventListeners(){
-        // Close book info section
-        document.getElementById('closeBookInfo').addEventListener('click', () => {
+        // Close book info 
+        document.getElementById('closeBookInfo').addEventListener('click', () => { 
             document.getElementById('book-info').hidden = true;
         });
-                // Search functionality
+        // Search event listeners
         document.getElementById('searchButton').addEventListener('click', () => this.searchBooks());
         document.getElementById('searchInput').addEventListener('keypress', (e) => { //Search on click or enter key
             if (e.key === 'Enter') this.searchBooks();
         });
 
-        //clear results
+        //clear results button
         document.getElementById('clearButton').addEventListener('click', () => { 
             document.getElementById('searchResults').innerHTML = '';
             document.getElementById('searchResults').hidden = true;
             document.getElementById('searchInput').value = '';
         });
-
+        // Filter buttons for bookshelf
         document.querySelectorAll('.filter-btn').forEach(btn => { 
             btn.addEventListener('click', (e) => {
                 document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -66,7 +66,7 @@ class Bookshelf { // main app class
  
     
     //Search for books
-    async searchBooks() {
+    async searchBooks() { // main search function
         const query = document.getElementById('searchInput').value.trim(); // get search input
         const resultsContainer = document.getElementById('searchResults'); // results container
         const searchItems = document.getElementById('searchItems').value; // number of items to fetch
@@ -80,28 +80,28 @@ class Bookshelf { // main app class
             resultsContainer.innerHTML = '<div class="empty-message">Searching...</div>';
             resultsContainer.classList.remove('hidden');
 
-            //fetch
-            const response = await fetch(`https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&limit=${searchItems}&fields=key,title,author_name,cover_i,first_publish_year,isbn,edition_key&language=eng`); // limit to 12 results
-            if(!response.ok) throw new Error('Bad network response'); // check response
-            const data = await response.json(); // parse JSON into a JavaScript object
+            //fetch data from Openlibrary API. Limit to the number of searchItems selected, english results only. Include only certain fields
+            const response = await fetch(`https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&limit=${searchItems}&fields=key,title,author_name,cover_i,first_publish_year,isbn,edition_key&language=eng`); 
+            if(!response.ok) throw new Error('Bad network response'); // check response 
+            const data = await response.json(); // parse JSON into a JavaScript object 
 
             //display results
             //Passes the array of books to displaySearchResults function
             this.displaySearchResults(data.docs); // pass book docs to display function
 
         } catch (err) { // handle errors
-            console.error(err);
-            resultsContainer.innerHTML = '<div class="empty-message">Error searching books</div>';
+            console.error(err); // log error
+            resultsContainer.innerHTML = '<div class="empty-message">Error searching books</div>'; // show error message
         }
     }
 
     // display search results
     displaySearchResults(books) { // books is an array of book objects pasased from Openlibrary's API during searchBooks()
-        const resultsContainer = document.getElementById('searchResults');
+        const resultsContainer = document.getElementById('searchResults'); // get results container
 
-        if(!books || books.length === 0) {
-            resultsContainer.innerHTML = '<div class="empty-message">No books found. Try a different Search.</div>';
-            return;
+        if(!books || books.length === 0) { // if no results found
+            resultsContainer.innerHTML = '<div class="empty-message">No books found. Try a different Search.</div>'; // show no results message and exit function
+            return; 
         }
 
         // ensure results area is visible
@@ -147,7 +147,7 @@ class Bookshelf { // main app class
                     </div>
                 </div>
             `; // end return
-        }).join(''); // end map
+        }).join('');
 
         // attach click listeners to results
 
